@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+<suppressions>
+    <suppress files="module-info\.java" checks=".*"/>
+    <!-- Complex parser/loader files — suppress until refactored -->
+    <suppress files="PyTorchLoader\.java" checks=".*"/>
+    <suppress files="GgmlLoader\.java" checks=".*"/>
+    <suppress files="WhisperModel\.java" checks=".*"/>
+    <suppress files="CTranslate2Loader\.java" checks=".*"/>
+    <suppress files="OnnxLoader\.java" checks=".*"/>
+    <suppress files="SafeTensorsLoader\.java" checks=".*"/>
+    <suppress files="WhisperTokenizer\.java" checks=".*"/>
+    <suppress files="WavParser\.java" checks=".*"/>
+    <suppress files="FeatureExtractor\.java" checks=".*"/>
+    <suppress files="ModelLoader\.java" checks=".*"/>
+    <!-- Tensor math — suppress naming/nesting for matrix algebra readability -->
+    <suppress files="Tensor\.java" checks="LocalVariableName|ParameterName|ParameterNumber|NestedForDepth|LeftCurly|EmptyLineSeparator|TrailingComment|ReturnCount|Indentation|CyclomaticComplexity|ExecutableStatementCount"/>
+    <suppress files="AccelerateBlas\.java" checks=".*"/>
+    <suppress files="Conv1d\.java" checks="NestedForDepth|SeparatorWrap"/>
+    <suppress files="MultiHeadAttention\.java" checks="ExecutableStatementCount|NestedIfDepth|MultipleStringLiterals|CyclomaticComplexity|NestedForDepth|JavaNCSS|NPathComplexity"/>
+    <suppress files="WhisperDecoder\.java" checks="ParameterNumber|CyclomaticComplexity|NPathComplexity|ReturnCount|ExecutableStatementCount|JavaNCSS|MethodLength|VariableDeclarationUsageDistance|NestedForDepth|TrailingComment|FinalParameters|LeftCurly"/>
+    <suppress files="Alignment\.java" checks="ReturnCount|CyclomaticComplexity|NPathComplexity|ExecutableStatementCount|NestedForDepth|FinalParameters|TrailingComment|OneStatementPerLine"/>
+    <suppress files="SimdOps\.java" checks=".*"/>
+    <suppress files="VectorSimdOps\.java" checks=".*"/>
+</suppressions>

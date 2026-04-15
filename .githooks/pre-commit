@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -e
+
+echo "Running pre-commit checks..."
+
+echo ">> Spotless check"
+./mvnw spotless:check -q
+
+echo ">> Checkstyle check"
+./mvnw checkstyle:check -q
+
+echo "Pre-commit checks passed."

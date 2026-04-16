@@ -36,6 +36,13 @@ jobs:
       - name: Tests (scalar path — no Vector API)
         run: ./mvnw -B test
 
+      - name: Upload coverage to Codecov
+        if: matrix.os == 'ubuntu-latest'
+        uses: codecov/codecov-action@v5
+        with:
+          files: target/jacoco.exec
+          flags: unittests
+
       - name: Tests (SIMD path — with Vector API)
         run: ./mvnw -B test -Pvector-api
 

@@ -4,4 +4,4 @@
 @NullMarked
 package com.sparrowlogic.whisper4j.audio;
 
-import org.jspecify.annotations.NullMarked;
+import com.sparrowlogic.whisper4j.annotation.NullMarked;

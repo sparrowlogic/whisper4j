@@ -1,6 +1,6 @@
 package com.sparrowlogic.whisper4j;
 
-import org.jspecify.annotations.Nullable;
+import com.sparrowlogic.whisper4j.annotation.Nullable;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;

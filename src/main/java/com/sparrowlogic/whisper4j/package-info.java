@@ -11,4 +11,4 @@
 @NullMarked
 package com.sparrowlogic.whisper4j;
 
-import org.jspecify.annotations.NullMarked;
+import com.sparrowlogic.whisper4j.annotation.NullMarked;

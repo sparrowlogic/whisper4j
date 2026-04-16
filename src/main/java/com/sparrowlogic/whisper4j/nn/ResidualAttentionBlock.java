@@ -1,7 +1,7 @@
 package com.sparrowlogic.whisper4j.nn;
 
+import com.sparrowlogic.whisper4j.annotation.Nullable;
 import com.sparrowlogic.whisper4j.tensor.Tensor;
-import org.jspecify.annotations.Nullable;
 import java.util.Map;
 
 /**

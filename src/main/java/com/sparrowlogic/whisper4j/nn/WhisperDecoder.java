@@ -1,9 +1,9 @@
 package com.sparrowlogic.whisper4j.nn;
 
+import com.sparrowlogic.whisper4j.annotation.Nullable;
 import com.sparrowlogic.whisper4j.model.ModelDimensions;
 import com.sparrowlogic.whisper4j.model.WeightStore;
 import com.sparrowlogic.whisper4j.tensor.Tensor;
-import org.jspecify.annotations.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;

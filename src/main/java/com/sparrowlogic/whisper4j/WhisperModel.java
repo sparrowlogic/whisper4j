@@ -14,7 +14,7 @@ import com.sparrowlogic.whisper4j.nn.WhisperEncoder;
 import com.sparrowlogic.whisper4j.tensor.Tensor;
 import com.sparrowlogic.whisper4j.tokenizer.WhisperTokenizer;
 
-import org.jspecify.annotations.Nullable;
+import com.sparrowlogic.whisper4j.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

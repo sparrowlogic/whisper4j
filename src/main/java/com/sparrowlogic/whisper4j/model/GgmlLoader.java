@@ -1,7 +1,7 @@
 package com.sparrowlogic.whisper4j.model;
 
 import com.sparrowlogic.whisper4j.tensor.Tensor;
-import org.jspecify.annotations.Nullable;
+import com.sparrowlogic.whisper4j.annotation.Nullable;
 
 import java.io.IOException;
 import java.lang.foreign.Arena;

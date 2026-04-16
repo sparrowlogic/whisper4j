@@ -26,7 +26,7 @@ Automatically uses hardware acceleration when available (tested on Apple Silicon
 
 ```xml
 <dependency>
-    <groupId>io.github.sparrowlogic</groupId>
+    <groupId>com.sparrowlogic</groupId>
     <artifactId>whisper4j</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 </dependency>

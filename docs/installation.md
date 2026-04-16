@@ -11,7 +11,7 @@ whisper4j is published to [Maven Central](https://central.sonatype.com/artifact/
 
 ```xml
 <dependency>
-    <groupId>io.github.sparrowlogic</groupId>
+    <groupId>com.sparrowlogic</groupId>
     <artifactId>whisper4j</artifactId>
     <version>1.0.1</version>
 </dependency>
@@ -55,7 +55,7 @@ Configure the compiler and runtime for preview features:
 
 ```kotlin
 dependencies {
-    implementation("io.github.sparrowlogic:whisper4j:1.0.1")
+    implementation("com.sparrowlogic:whisper4j:1.0.1")
 }
 
 java {
@@ -84,7 +84,7 @@ tasks.withType<JavaExec> {
 
 ```groovy
 dependencies {
-    implementation 'io.github.sparrowlogic:whisper4j:1.0.1'
+    implementation 'com.sparrowlogic:whisper4j:1.0.1'
 }
 
 java {

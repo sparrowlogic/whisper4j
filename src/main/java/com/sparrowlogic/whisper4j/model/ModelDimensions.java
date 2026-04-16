@@ -16,7 +16,12 @@ public record ModelDimensions(
         int nTextLayer
 ) {
 
-    /** Infer dimensions from weight shapes in a WeightStore. */
+    /**
+     * Infer model dimensions from weight tensor shapes.
+     *
+     * @param weights loaded weight store with canonical tensor names
+     * @return inferred dimensions matching the model architecture
+     */
     public static ModelDimensions infer(final WeightStore weights) {
         int nAudioState = weights.dim("encoder.conv1.weight", 0);
         int nMels = weights.dim("encoder.conv1.weight", 1);

@@ -1,6 +1,7 @@
 package com.sparrowlogic.whisper4j;
 
 import com.sparrowlogic.whisper4j.tensor.Tensor;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,7 +34,7 @@ public final class Alignment {
             final com.sparrowlogic.whisper4j.tokenizer.WhisperTokenizer tokenizer,
             final int numFrames,
             final int sotSeqLen,
-            final float[] tokenProbs) {
+            final float @Nullable [] tokenProbs) {
 
         if (textTokens.length == 0 || crossAttnWeights.isEmpty()) {
             return List.of();
@@ -189,7 +190,7 @@ public final class Alignment {
             final int[] textTokens,
             final com.sparrowlogic.whisper4j.tokenizer.WhisperTokenizer tokenizer,
             final float[] jumpTimes,
-            final float[] tokenProbs) {
+            final float @Nullable [] tokenProbs) {
 
         // Split tokens into words using the tokenizer's decode
         List<WordTiming> words = new ArrayList<>();

@@ -14,6 +14,7 @@ import com.sparrowlogic.whisper4j.nn.WhisperEncoder;
 import com.sparrowlogic.whisper4j.tensor.Tensor;
 import com.sparrowlogic.whisper4j.tokenizer.WhisperTokenizer;
 
+import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,14 +41,14 @@ public final class WhisperModel implements AutoCloseable {
     private final FeatureExtractor featureExtractor;
     private final WhisperTokenizer tokenizer;
     private final ModelDimensions dims;
-    private final Arena weightArena;
+    private final @Nullable Arena weightArena;
     private final java.util.concurrent.atomic.AtomicInteger activeCount =
             new java.util.concurrent.atomic.AtomicInteger(0);
     private volatile boolean closed;
 
     private WhisperModel(WhisperEncoder encoder, WhisperDecoder decoder,
                          FeatureExtractor featureExtractor, WhisperTokenizer tokenizer,
-                         ModelDimensions dims, Arena weightArena) {
+                         ModelDimensions dims, @Nullable Arena weightArena) {
         this.encoder = encoder;
         this.decoder = decoder;
         this.featureExtractor = featureExtractor;
@@ -104,7 +105,8 @@ public final class WhisperModel implements AutoCloseable {
      * @param tokenizerPath  path to tokenizer.json (or null to auto-discover)
      */
     @SuppressWarnings("checkstyle:CyclomaticComplexity")
-    public static WhisperModel load(Path modelPath, Path tokenizerPath, TranscriptionOptions opts) throws IOException {
+    public static WhisperModel load(Path modelPath, @Nullable Path tokenizerPath,
+                                     @Nullable TranscriptionOptions opts) throws IOException {
         if (modelPath == null) {
             throw new IllegalArgumentException("modelPath must not be null");
         }
@@ -210,7 +212,8 @@ public final class WhisperModel implements AutoCloseable {
     }
 
     /** Auto-discover tokenizer.json alongside the model file or in the same directory. */
-    private static Path resolveTokenizerPath(final Path explicit, final Path modelPath) {
+    private static @Nullable Path resolveTokenizerPath(final @Nullable Path explicit,
+                                                        final Path modelPath) {
         if (explicit != null && Files.exists(explicit)) {
             return explicit;
         }
@@ -257,7 +260,7 @@ public final class WhisperModel implements AutoCloseable {
     @SuppressWarnings({"checkstyle:ExecutableStatementCount", "checkstyle:CyclomaticComplexity",
         "checkstyle:NPathComplexity", "checkstyle:MethodLength"})
     public Stream<Segment> transcribe(float[] audio, TranscriptionOptions opts,
-                                      TranscriptionHandle handle) {
+                                      @Nullable TranscriptionHandle handle) {
         if (audio == null || audio.length == 0) {
             return Stream.empty();
         }
@@ -283,7 +286,8 @@ public final class WhisperModel implements AutoCloseable {
     }
 
     private Stream<Segment> transcribeWithVad(final float[] audio, final TranscriptionOptions opts,
-                                              final float duration, final TranscriptionHandle handle) {
+                                              final float duration,
+                                              final @Nullable TranscriptionHandle handle) {
         var vad = new VoiceActivityDetector();
         var speechSegments = vad.detect(audio);
         LOG.info("VAD: %d speech segments detected".formatted(speechSegments.size()));
@@ -328,7 +332,8 @@ public final class WhisperModel implements AutoCloseable {
     @SuppressWarnings({"checkstyle:ExecutableStatementCount", "checkstyle:CyclomaticComplexity",
         "checkstyle:NPathComplexity", "checkstyle:MethodLength"})
     private Stream<Segment> transcribeChunked(final float[] audio, final TranscriptionOptions opts,
-                                              final float duration, final TranscriptionHandle handle) {
+                                              final float duration,
+                                              final @Nullable TranscriptionHandle handle) {
         int nFrames = featureExtractor.maxFrames(); // 3000
         int inputStride = nFrames / dims.nAudioCtx(); // 2
         float timePrecision = inputStride * 160.0f / 16000.0f; // 0.02s

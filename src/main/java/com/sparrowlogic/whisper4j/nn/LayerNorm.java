@@ -24,6 +24,7 @@ public final class LayerNorm {
         this.betaData = bias.data();
     }
 
+    /** Apply layer normalization over the last dimension. */
     public Tensor forward(final Tensor x) {
         return x.layerNorm(this.weight, this.bias, this.eps, this.gammaData, this.betaData);
     }

@@ -59,7 +59,10 @@ public final class FeatureExtractor {
     }
 
     /**
-     * Compute log-mel spectrogram. Returns Tensor of shape (nMels, frames).
+     * Compute log-mel spectrogram from raw audio.
+     *
+     * @param audio 16 kHz mono float PCM (should be {@link #nSamples()} long for a full chunk)
+     * @return tensor of shape (nMels, frames)
      */
     @SuppressWarnings("checkstyle:NestedForDepth")
     public Tensor extract(final float[] audio) {
@@ -128,7 +131,13 @@ public final class FeatureExtractor {
         return Tensor.of(logSpec, this.nMels, nFrames);
     }
 
-    /** Pad or trim features to maxFrames along the last dimension. Pads with mel floor value. */
+    /**
+     * Pad or trim features to {@link #maxFrames()} along the last dimension.
+     * Pads with the mel floor value (minimum in the spectrogram).
+     *
+     * @param features tensor of shape (nMels, frames)
+     * @return tensor of shape (nMels, maxFrames)
+     */
     public Tensor padOrTrim(final Tensor features) {
         int frames = features.dim(-1);
         int target = this.maxFrames();

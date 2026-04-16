@@ -1,6 +1,7 @@
 package com.sparrowlogic.whisper4j.model;
 
 import com.sparrowlogic.whisper4j.tensor.Tensor;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.lang.foreign.Arena;
@@ -38,12 +39,12 @@ public final class GgmlLoader implements ModelLoader {
     private static final ValueLayout.OfFloat FLOAT_LE = ValueLayout.JAVA_FLOAT_UNALIGNED.withOrder(ByteOrder.LITTLE_ENDIAN);
     private static final ValueLayout.OfShort SHORT_LE = ValueLayout.JAVA_SHORT_UNALIGNED.withOrder(ByteOrder.LITTLE_ENDIAN);
 
-    private Map<Integer, String> vocab;
-    private float[] melFilters;
+    private @Nullable Map<Integer, String> vocab;
+    private float @Nullable [] melFilters;
     private int melFilterNMel;
     private int melFilterNFft;
-    private ModelDimensions dims;
-    private Arena arena;
+    private @Nullable ModelDimensions dims;
+    private @Nullable Arena arena;
 
     @Override
     public WeightStore load(Path path) throws IOException {
@@ -69,7 +70,7 @@ public final class GgmlLoader implements ModelLoader {
     }
 
     /** Transfer arena ownership to the caller (e.g., WhisperModel). Returns null if already closed. */
-    public Arena takeArena() {
+    public @Nullable Arena takeArena() {
         Arena a = this.arena;
         this.arena = null;
         return a;
@@ -85,11 +86,11 @@ public final class GgmlLoader implements ModelLoader {
             arena = null;
         }
     }
-    public Map<Integer, String> vocab() { return vocab; }
-    public float[] melFilters() { return melFilters; }
-    public int melFilterNMel() { return melFilterNMel; }
-    public int melFilterNFft() { return melFilterNFft; }
-    public ModelDimensions dimensions() { return dims; }
+    public @Nullable Map<Integer, String> vocab() { return this.vocab; }
+    public float @Nullable [] melFilters() { return this.melFilters; }
+    public int melFilterNMel() { return this.melFilterNMel; }
+    public int melFilterNFft() { return this.melFilterNFft; }
+    public @Nullable ModelDimensions dimensions() { return this.dims; }
 
     private WeightStore parse(MemorySegment seg, long fileSize) {
         long pos = 0;

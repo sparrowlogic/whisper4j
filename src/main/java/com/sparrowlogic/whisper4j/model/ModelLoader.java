@@ -9,9 +9,21 @@ import java.nio.file.Path;
 public sealed interface ModelLoader
         permits SafeTensorsLoader, PyTorchLoader, CTranslate2Loader, OnnxLoader, GgmlLoader {
 
+    /**
+     * Load model weights from the given path into a {@link WeightStore}.
+     *
+     * @param path path to the model file
+     * @return weight store containing all named tensors
+     * @throws IOException if the file cannot be read or is corrupt
+     */
     WeightStore load(Path path) throws IOException;
 
-    /** Auto-detect format from file/directory and return appropriate loader. */
+    /**
+     * Auto-detect model format from file extension or directory contents.
+     *
+     * @param path path to model file or HuggingFace directory
+     * @return appropriate loader for the detected format
+     */
     @SuppressWarnings("checkstyle:ReturnCount")
     static ModelLoader forPath(final Path path) {
         String name = path.getFileName().toString().toLowerCase();

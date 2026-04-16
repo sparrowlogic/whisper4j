@@ -1,5 +1,6 @@
 package com.sparrowlogic.whisper4j.tokenizer;
 
+import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,25 +20,39 @@ import java.util.TreeSet;
 public final class WhisperTokenizer {
 
     private final Map<String, Integer> vocab;
+
     private final String[] idToToken;
+
     private final List<String[]> merges;
+
     private final boolean multilingual;
+
     private final String languageCode;
+
     private final String task;
+
     private final boolean rawVocab; // true if vocab tokens are already UTF-8 (GGML)
 
     // special token IDs (resolved lazily from vocab)
     private final int sotId;
+
     private final int eotId;
+
     private final int transcribeId;
+
     private final int translateId;
+
     private final int noTimestampsId;
+
     private final int noSpeechId;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    private WhisperTokenizer(final Map<String, Integer> vocab, final String[] idToToken,
-                             final List<String[]> merges, final boolean multilingual,
-                             final String language, final String task, final boolean rawVocab) {
+    private WhisperTokenizer(
+            final Map<String, Integer> vocab, final String[] idToToken,
+            final List<String[]> merges, final boolean multilingual,
+            final @Nullable String language, final @Nullable String task,
+            final boolean rawVocab
+    ) {
         this.vocab = vocab;
         this.idToToken = idToToken;
         this.merges = merges;
@@ -54,8 +69,20 @@ public final class WhisperTokenizer {
         this.noSpeechId = vocab.getOrDefault("<|nospeech|>", vocab.getOrDefault("<|nocaptions|>", -1));
     }
 
-    public static WhisperTokenizer load(final Path tokenizerJson, final boolean multilingual,
-                                        final String language, final String task) throws IOException {
+    /**
+     * Load a tokenizer from a HuggingFace {@code tokenizer.json} file.
+     *
+     * @param tokenizerJson path to tokenizer.json
+     * @param multilingual  true for multilingual models (vocab &ge; 51865)
+     * @param language      ISO 639-1 language code (e.g. "en")
+     * @param task          "transcribe" or "translate"
+     * @return configured tokenizer
+     * @throws IOException if the file cannot be read
+     */
+    public static WhisperTokenizer load(
+            final Path tokenizerJson, final boolean multilingual,
+            final String language, final String task
+    ) throws IOException {
         String json = Files.readString(tokenizerJson);
         return fromJson(json, multilingual, language, task);
     }
@@ -63,8 +90,10 @@ public final class WhisperTokenizer {
     /**
      * Parse a HuggingFace tokenizer.json. Minimal JSON parsing — no dependency.
      */
-    public static WhisperTokenizer fromJson(final String json, final boolean multilingual,
-                                            final String language, final String task) {
+    public static WhisperTokenizer fromJson(
+            final String json, final boolean multilingual,
+            final String language, final String task
+    ) {
         Map<String, Integer> vocab = new LinkedHashMap<>();
         List<String[]> merges = new ArrayList<>();
 
@@ -105,21 +134,33 @@ public final class WhisperTokenizer {
         return new WhisperTokenizer(vocab, idToToken, merges, multilingual, language, task, false);
     }
 
-    /** Build from GGML vocab where tokens are already raw UTF-8 (not BPE-encoded). */
-    public static WhisperTokenizer fromRawVocab(final String json, final boolean multilingual,
-                                                final String language, final String task) {
+    /**
+     * Build from GGML vocab where tokens are already raw UTF-8 (not BPE-encoded).
+     */
+    public static WhisperTokenizer fromRawVocab(
+            final String json, final boolean multilingual,
+            final String language, final String task
+    ) {
         // Parse same as fromJson but mark as raw vocab
         WhisperTokenizer base = fromJson(json, multilingual, language, task);
-        return new WhisperTokenizer(base.vocab, base.idToToken, base.merges,
-                multilingual, language, task, true);
+        return new WhisperTokenizer(
+                base.vocab, base.idToToken, base.merges,
+                multilingual, language, task, true
+        );
     }
 
     // ---- Public API ----
 
+    /**
+     * Start-of-transcript token ID.
+     */
     public int sot() {
         return this.sotId;
     }
 
+    /**
+     * End-of-text token ID.
+     */
     public int eot() {
         return this.eotId;
     }
@@ -142,12 +183,20 @@ public final class WhisperTokenizer {
         // Only add language + task tokens for multilingual models (matching Python reference)
         if (this.multilingual) {
             int langId = this.tokenId("<|" + this.languageCode + "|>");
-            if (langId >= 0) { seq.add(langId); }
+            if (langId >= 0) {
+                seq.add(langId);
+            }
             seq.add("translate".equals(this.task) ? this.translateId : this.transcribeId);
         }
         return seq.stream().mapToInt(Integer::intValue).toArray();
     }
 
+    /**
+     * Encode text to token IDs using byte-level BPE.
+     *
+     * @param text input text
+     * @return array of token IDs
+     */
     public int[] encode(final String text) {
         if (text == null || text.isEmpty()) {
             return new int[0];
@@ -162,6 +211,12 @@ public final class WhisperTokenizer {
         return tokens.stream().mapToInt(t -> this.vocab.getOrDefault(t, 0)).toArray();
     }
 
+    /**
+     * Decode token IDs back to text. Tokens at or above EOT are skipped.
+     *
+     * @param tokens array of token IDs
+     * @return decoded text
+     */
     public String decode(final int[] tokens) {
         StringBuilder sb = new StringBuilder();
         for (int id : tokens) {
@@ -175,6 +230,12 @@ public final class WhisperTokenizer {
         return this.rawVocab ? sb.toString() : decodeBpe(sb.toString());
     }
 
+    /**
+     * Decode token IDs to text, rendering timestamp tokens as {@code <|0.00|>} markers.
+     *
+     * @param tokens array of token IDs (may include timestamp tokens)
+     * @return decoded text with inline timestamp markers
+     */
     public String decodeWithTimestamps(final int[] tokens) {
         StringBuilder sb = new StringBuilder();
         for (int id : tokens) {
@@ -236,6 +297,7 @@ public final class WhisperTokenizer {
     // ---- Byte-level BPE encoding table (GPT-2 style) ----
 
     private static final String[] BYTE_ENCODER = new String[256];
+
     private static final Map<Character, Byte> BYTE_DECODER = new HashMap<>();
 
     static {
@@ -403,7 +465,7 @@ public final class WhisperTokenizer {
         return json.length() - 1;
     }
 
-    private static String extractJsonString(final String json, final String key) {
+    private static @Nullable String extractJsonString(final String json, final String key) {
         int idx = json.indexOf("\"" + key + "\"");
         if (idx < 0) {
             return null;
@@ -417,7 +479,7 @@ public final class WhisperTokenizer {
         return unescapeJson(json.substring(strStart + 1, strEnd));
     }
 
-    private static Integer extractJsonInt(final String json, final String key) {
+    private static @Nullable Integer extractJsonInt(final String json, final String key) {
         int idx = json.indexOf("\"" + key + "\"");
         if (idx < 0) {
             return null;

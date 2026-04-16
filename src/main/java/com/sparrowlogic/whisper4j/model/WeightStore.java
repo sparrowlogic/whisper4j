@@ -13,10 +13,18 @@ public final class WeightStore {
 
     private final Map<String, Tensor> weights = new LinkedHashMap<>();
 
+    /** Store a named tensor. */
     public void put(final String name, final Tensor tensor) {
         this.weights.put(name, tensor);
     }
 
+    /**
+     * Retrieve a tensor by name.
+     *
+     * @param name canonical weight name (e.g. {@code "encoder.conv1.weight"})
+     * @return the tensor
+     * @throws IllegalArgumentException if the name is not found
+     */
     public Tensor get(final String name) {
         Tensor t = this.weights.get(name);
         if (t == null) {
@@ -25,6 +33,7 @@ public final class WeightStore {
         return t;
     }
 
+    /** Check if a weight with the given name exists. */
     public boolean contains(final String name) {
         return this.weights.containsKey(name);
     }

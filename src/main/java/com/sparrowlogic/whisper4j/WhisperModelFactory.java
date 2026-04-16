@@ -1,5 +1,6 @@
 package com.sparrowlogic.whisper4j;
 
+import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
@@ -52,7 +53,7 @@ public final class WhisperModelFactory {
     private static final ConcurrentHashMap<String, CachedModel> SHARED = new ConcurrentHashMap<>();
 
     private final Path modelPath;
-    private Path tokenizerPath;
+    private @Nullable Path tokenizerPath;
     private String language = "en";
     private String task = "transcribe";
     private int beamSize = 5;

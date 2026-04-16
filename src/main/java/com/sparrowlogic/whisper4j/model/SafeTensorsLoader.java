@@ -1,6 +1,7 @@
 package com.sparrowlogic.whisper4j.model;
 
 import com.sparrowlogic.whisper4j.tensor.Tensor;
+import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -159,7 +160,7 @@ public final class SafeTensorsLoader implements ModelLoader {
         return json.length() - 1;
     }
 
-    private static String extractString(final String json, final String key) {
+    private static @Nullable String extractString(final String json, final String key) {
         int idx = json.indexOf("\"" + key + "\"");
         if (idx < 0) {
             return null;

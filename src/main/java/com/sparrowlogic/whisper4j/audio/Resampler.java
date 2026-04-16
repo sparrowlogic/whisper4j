@@ -10,7 +10,13 @@ public final class Resampler {
 
     private Resampler() { }
 
-    /** Convert multi-channel interleaved samples to mono by averaging. */
+    /**
+     * Convert multi-channel interleaved samples to mono by averaging channels.
+     *
+     * @param samples  interleaved PCM samples
+     * @param channels number of audio channels
+     * @return mono samples (returned as-is if already mono)
+     */
     public static float[] toMono(final float[] samples, final int channels) {
         if (channels == 1) {
             return samples;
@@ -27,7 +33,14 @@ public final class Resampler {
         return mono;
     }
 
-    /** Resample mono float PCM from srcRate to dstRate via linear interpolation. */
+    /**
+     * Resample mono float PCM from {@code srcRate} to {@code dstRate} via linear interpolation.
+     *
+     * @param samples mono PCM samples
+     * @param srcRate source sample rate in Hz
+     * @param dstRate destination sample rate in Hz
+     * @return resampled samples (returned as-is if rates match)
+     */
     public static float[] resample(final float[] samples, final int srcRate, final int dstRate) {
         if (srcRate == dstRate) {
             return samples;
@@ -46,7 +59,14 @@ public final class Resampler {
         return out;
     }
 
-    /** Convenience: convert to mono 16kHz from any format. */
+    /**
+     * Convert any audio format to Whisper's expected input: mono 16 kHz float PCM.
+     *
+     * @param samples    raw interleaved PCM samples
+     * @param sampleRate original sample rate in Hz
+     * @param channels   number of audio channels
+     * @return mono 16 kHz float PCM
+     */
     public static float[] toWhisperInput(final float[] samples, final int sampleRate,
                                          final int channels) {
         float[] mono = toMono(samples, channels);

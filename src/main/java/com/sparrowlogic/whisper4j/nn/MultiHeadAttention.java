@@ -1,6 +1,7 @@
 package com.sparrowlogic.whisper4j.nn;
 
 import com.sparrowlogic.whisper4j.tensor.Tensor;
+import org.jspecify.annotations.Nullable;
 import java.lang.foreign.MemorySegment;
 import java.util.Map;
 
@@ -34,8 +35,10 @@ public final class MultiHeadAttention {
     }
 
     @SuppressWarnings("checkstyle:NestedIfDepth")
-    public Tensor[] forward(final Tensor x, final Tensor xa, final Tensor mask,
-                            final Map<String, Tensor> kvCache, final String cachePrefix) {
+    public Tensor[] forward(final Tensor x, final @Nullable Tensor xa,
+                            final @Nullable Tensor mask,
+                            final @Nullable Map<String, Tensor> kvCache,
+                            final String cachePrefix) {
         Tensor q = this.query.forward(x);
         int batch = q.dim(0);
         int qLen = q.dim(1);

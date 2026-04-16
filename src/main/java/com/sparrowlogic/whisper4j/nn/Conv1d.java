@@ -1,6 +1,7 @@
 package com.sparrowlogic.whisper4j.nn;
 
 import com.sparrowlogic.whisper4j.tensor.Tensor;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 1D convolution via im2col + BLAS matmul.
@@ -14,9 +15,10 @@ public final class Conv1d {
     private final int stride;
     private final int padding;
     private final Tensor weightMatrix;
-    private final Tensor bias;
+    private final @Nullable Tensor bias;
 
-    public Conv1d(final Tensor weight, final Tensor bias, final int stride, final int padding) {
+    public Conv1d(final Tensor weight, final @Nullable Tensor bias,
+                  final int stride, final int padding) {
         this.stride = stride;
         this.padding = padding;
         this.outCh = weight.dim(0);
@@ -27,6 +29,12 @@ public final class Conv1d {
     }
 
     @SuppressWarnings("checkstyle:NestedForDepth")
+    /**
+     * Apply 1D convolution via im2col + BLAS matmul.
+     *
+     * @param input tensor of shape (batch, inChannels, length)
+     * @return tensor of shape (batch, outChannels, outLength)
+     */
     public Tensor forward(final Tensor input) {
         int inLen = input.dim(2);
         int outLen = (inLen + 2 * this.padding - this.kSize) / this.stride + 1;

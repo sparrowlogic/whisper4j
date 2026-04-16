@@ -26,7 +26,12 @@ public final class VoiceActivityDetector {
         this.windowSamples = sampleRate * 30 / 1000;
     }
 
-    /** Detect speech segments in 16kHz mono audio using RMS energy in 30ms windows. */
+    /**
+     * Detect speech segments in 16 kHz mono audio using RMS energy in 30 ms windows.
+     *
+     * @param audio 16 kHz mono float PCM
+     * @return list of speech segments with sample-level boundaries
+     */
     public List<SpeechSegment> detect(final float[] audio) {
         // Compute per-window voiced flags
         int nWindows = (audio.length + this.windowSamples - 1) / this.windowSamples;

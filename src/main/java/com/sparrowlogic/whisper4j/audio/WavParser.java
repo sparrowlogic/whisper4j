@@ -23,6 +23,13 @@ public final class WavParser {
     private WavParser() {
     }
 
+    /**
+     * Parse a WAV file from disk using memory-mapped I/O.
+     *
+     * @param path path to the WAV file
+     * @return parsed audio data with samples, sample rate, and channel info
+     * @throws IOException if the file cannot be read
+     */
     public static WavData parse(final Path path) throws IOException {
         LOG.info("Parsing WAV file: " + path);
         try (var ch = FileChannel.open(path, StandardOpenOption.READ)) {
@@ -32,6 +39,14 @@ public final class WavParser {
         }
     }
 
+    /**
+     * Parse a WAV file from a ByteBuffer.
+     * Supports PCM (8/16/24/32-bit), IEEE float (32/64-bit), and u-law formats.
+     *
+     * @param buf little-endian ByteBuffer positioned at the start of the RIFF header
+     * @return parsed audio data
+     * @throws IllegalArgumentException if the buffer is not a valid WAV file
+     */
     @SuppressWarnings("checkstyle:MissingSwitchDefault")
     public static WavData parse(final ByteBuffer buf) {
         buf.order(ByteOrder.LITTLE_ENDIAN);

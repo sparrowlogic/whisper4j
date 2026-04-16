@@ -3,6 +3,7 @@ package com.sparrowlogic.whisper4j.nn;
 import com.sparrowlogic.whisper4j.model.ModelDimensions;
 import com.sparrowlogic.whisper4j.model.WeightStore;
 import com.sparrowlogic.whisper4j.tensor.Tensor;
+import org.jspecify.annotations.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
@@ -55,15 +56,16 @@ public final class WhisperDecoder {
     }
 
     /** Forward pass: tokens → logits. */
-    public Tensor forward(final int[] tokens, final Tensor xa, final Map<String, Tensor> kvCache) {
+    public Tensor forward(final int[] tokens, final Tensor xa,
+                          final @Nullable Map<String, Tensor> kvCache) {
         return this.forwardWithAttn(tokens, xa, kvCache, null);
     }
 
     /** Forward pass capturing cross-attention weights from specified layers. */
     @SuppressWarnings("checkstyle:ExecutableStatementCount")
     public Tensor forwardWithAttn(final int[] tokens, final Tensor xa,
-                                  final Map<String, Tensor> kvCache,
-                                  final List<Tensor> crossAttnOut) {
+                                  final @Nullable Map<String, Tensor> kvCache,
+                                  final @Nullable List<Tensor> crossAttnOut) {
         int seqLen = tokens.length;
         int nState = this.tokenEmbedding.dim(1);
         int nCtx = this.positionalEmbedding.dim(0);

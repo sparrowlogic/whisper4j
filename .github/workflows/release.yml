@@ -2,7 +2,7 @@ name: Release to Maven Central
 
 on:
   push:
-    tags: [ 'v*' ]
+    tags: [ '*' ]
 
 jobs:
   release:
@@ -20,6 +20,9 @@ jobs:
           server-username: CENTRAL_USERNAME
           server-password: CENTRAL_TOKEN
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+
+      - name: Set version from tag
+        run: ./mvnw -B versions:set -DnewVersion="${GITHUB_REF_NAME#v}" -DgenerateBackupPoms=false
 
       - name: Publish to Maven Central
         run: ./mvnw -B -Prelease deploy -DskipTests

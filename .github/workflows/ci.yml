@@ -50,6 +50,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Delete existing package
         run: |
@@ -65,6 +67,12 @@ jobs:
           server-id: github
           server-username: GITHUB_ACTOR
           server-password: GITHUB_TOKEN
+
+      - name: Set SNAPSHOT version from git
+        run: |
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          VERSION="${TAG#v}-SNAPSHOT"
+          ./mvnw -B versions:set -DnewVersion="$VERSION" -DgenerateBackupPoms=false
 
       - name: Publish to GitHub Packages
         run: ./mvnw -B deploy -DskipTests

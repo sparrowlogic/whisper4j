@@ -8,6 +8,9 @@ jobs:
   release:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
       - uses: actions/checkout@v4
 
@@ -31,7 +34,13 @@ jobs:
           CENTRAL_TOKEN: ${{ secrets.CENTRAL_TOKEN }}
           MAVEN_GPG_PASSPHRASE: ''
 
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "$GITHUB_REF_NAME" --generate-notes
+
   native-binary:
+    needs: release
     strategy:
       fail-fast: false
       matrix:
@@ -42,6 +51,9 @@ jobs:
             artifact: whisper4j-linux-amd64
     runs-on: ${{ matrix.os }}
     name: native (${{ matrix.artifact }})
+
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4

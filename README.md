@@ -270,28 +270,45 @@ inference engine.
 
 ## Performance
 
-### whisper4j vs Python whisper (203s audio, greedy beam=1, Apple Silicon M-series)
+### Transcription Benchmark (203s audio, greedy beam=1, Apple M2 Max, 96 GB)
 
-| Model          | Python (PyTorch CPU) | whisper4j (Pure Java) | Ratio |
-|----------------|----------------------|-----------------------|-------|
-| tiny.en        | 3.8s (53.9x)         | 6.7s (30.2x)          | 0.56x |
-| base.en        | 7.4s (27.5x)         | 10.5s (19.3x)         | 0.70x |
-| small.en       | 17.0s (12.0x)        | 22.4s (9.1x)          | 0.76x |
-| medium.en      | 40.0s (5.1x)         | 84.6s (2.4x)          | 0.47x |
-| large-v3-turbo | 28.8s (7.0x)         | 73.3s (2.8x)          | 0.39x |
+Models loaded from ramdisk to eliminate I/O variance.
+
+| Model          | Corretto 26 | Corretto 26 + Vec | Valhalla | Valhalla + Vec | GraalVM Native |
+|----------------|-------------|--------------------|----------|----------------|----------------|
+| tiny.en        | 5.8s (35x)  | 5.1s (40x)         | 5.7s (36x) | 5.4s (38x)  | 7.5s (27x)     |
+| base.en        | 10.6s (19x) | 9.8s (21x)         | 10.4s (20x) | 10.1s (20x) | 14.0s (15x)    |
+| small.en       | 27.3s (7.4x) | 25.7s (7.9x)      | 28.1s (7.2x) | 25.9s (7.8x) | 36.1s (5.6x) |
+| medium.en      | 79.0s (2.6x) | 74.2s (2.7x)      | 79.0s (2.6x) | 73.6s (2.8x) | 108.2s (1.9x) |
+| large-v3-turbo | 82.0s (2.5x) | 79.6s (2.6x)      | 82.5s (2.5x) | 76.7s (2.7x) | 108.9s (1.9x) |
+
+Corretto 26: Amazon Corretto `26+35-FR`. Valhalla: OpenJDK Valhalla `8f9586645` (lworld branch).
+Vec: `--enable-preview --add-modules jdk.incubator.vector` (Vector API SIMD).
+GraalVM Native: Oracle GraalVM `26-dev+13.1`, AOT-compiled 18 MB binary.
+
+All models transcribe above real-time on all platforms. Valhalla + Vector API is the fastest JVM
+configuration. GraalVM native-image is 1.3–1.5x slower than the fastest JVM but produces a
+self-contained binary with instant startup.
+
+### whisper4j vs Python whisper
+
+| Model          | Python (PyTorch CPU) | whisper4j (Corretto 26 + Vec) | Ratio |
+|----------------|----------------------|-------------------------------|-------|
+| tiny.en        | 3.8s (53.9x)         | 5.1s (40.0x)                  | 0.74x |
+| base.en        | 7.4s (27.5x)         | 9.8s (20.8x)                  | 0.76x |
+| small.en       | 17.0s (12.0x)        | 25.7s (7.9x)                  | 0.66x |
+| medium.en      | 40.0s (5.1x)         | 74.2s (2.7x)                  | 0.53x |
+| large-v3-turbo | 28.8s (7.0x)         | 79.6s (2.6x)                  | 0.37x |
 
 Python: whisper 20250625, PyTorch 2.11.0, CPU, 8 threads.
 Java: whisper4j, Java 26 with Vector API, Apple Accelerate BLAS via Panama FFM.
-
-All models transcribe above real-time. whisper4j reaches 39–76% of Python speed in pure Java with zero native
-dependencies. The gap is from PyTorch's fused CUDA-style CPU kernels (batched attention, fused LayerNorm+GELU) that
-whisper4j implements as separate BLAS calls.
 
 ### Acceleration
 
 - **macOS (Apple Silicon):** Apple Accelerate BLAS via AMX coprocessor (Panama FFM)
 - **Java 26+ with `--enable-preview`:** Vector API (JEP 529) for element-wise ops, GELU, softmax
-- **Fallback:** Pure Java scalar loops and tiled matrix multiply (Java 25+, or Java 26 without `--enable-preview`)
+- **GraalVM native-image:** AOT compilation with FFM downcall support, Apple Accelerate BLAS
+- **Fallback:** Pure Java scalar loops with bulk `MemorySegment.copy` and tiled matrix multiply
 
 ## Concurrency
 

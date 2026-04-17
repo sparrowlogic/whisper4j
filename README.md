@@ -7,14 +7,17 @@ Automatically uses hardware acceleration when available (tested on Apple Silicon
 ## Project motivations, goals, and expectations.
 
 **Motivations:**
+
 - To bring more AI/ML capabilities natively into the Java ecosystem.
 - To understand the Vector API in Java 26+ (Preview).
 - To understand how the python implementation performs in comparison to Java.
 
 **Goals:**
+
 - Get to parity or better performance in comparison to the python implementation.
 
 **Expectations:**
+
 - It's not currently equivalent in performance to the original python implementation that relies on optimized
   dependencies.
 - I'm not sure if this can achieve equivalent or better performance than the reference implementation.
@@ -25,6 +28,7 @@ Automatically uses hardware acceleration when available (tested on Apple Silicon
 ### Maven Dependency
 
 ```xml
+
 <dependency>
     <groupId>com.sparrowlogic</groupId>
     <artifactId>whisper4j</artifactId>
@@ -35,11 +39,14 @@ Automatically uses hardware acceleration when available (tested on Apple Silicon
 SNAPSHOT versions require the Central snapshots repository:
 
 ```xml
+
 <repositories>
     <repository>
         <id>central-snapshots</id>
         <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-        <snapshots><enabled>true</enabled></snapshots>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
     </repository>
 </repositories>
 ```
@@ -54,11 +61,27 @@ SNAPSHOT versions require the Central snapshots repository:
 var model = WhisperModel.load(Path.of("ggml-base.en.bin"));
 
 // Transcribe a file
-model.transcribe(Path.of("audio.wav")).forEach(seg ->
-        System.out.printf("[%.1f - %.1f] %s%n", seg.start(), seg.end(), seg.text()));
+model.
+
+transcribe(Path.of("audio.wav")).
+
+forEach(seg ->
+        System.out.
+
+printf("[%.1f - %.1f] %s%n",seg.start(),seg.
+
+end(),seg.
+
+text()));
 
 // Transcribe raw PCM
-model.transcribe(float16kHzMono).forEach(seg -> System.out.println(seg.text()));
+        model.
+
+transcribe(float16kHzMono).
+
+forEach(seg ->System.out.
+
+println(seg.text()));
 
 // Detect language
 String lang = model.detectLanguage(audio); // "en", "zh", "de", etc.
@@ -92,11 +115,10 @@ public WhisperModel whisperModel(@Value("${whisper.model-path}") String path) {
 ```java
 // Plain Java
 var model = new WhisperModelFactory(Path.of("ggml-base.en.bin"))
-        .language("en")
-        .beamSize(1)
-        .create();
+                .language("en")
+                .beamSize(1)
+                .create();
 ```
-
 
 ## API Comparison: whisper4j vs OpenAI Whisper (Python)
 
@@ -274,13 +296,13 @@ inference engine.
 
 Models loaded from ramdisk to eliminate I/O variance.
 
-| Model          | Corretto 26 | Corretto 26 + Vec | Valhalla | Valhalla + Vec | GraalVM Native |
-|----------------|-------------|--------------------|----------|----------------|----------------|
-| tiny.en        | 5.8s (35x)  | 5.1s (40x)         | 5.7s (36x) | 5.4s (38x)  | 7.5s (27x)     |
-| base.en        | 10.6s (19x) | 9.8s (21x)         | 10.4s (20x) | 10.1s (20x) | 14.0s (15x)    |
-| small.en       | 27.3s (7.4x) | 25.7s (7.9x)      | 28.1s (7.2x) | 25.9s (7.8x) | 36.1s (5.6x) |
-| medium.en      | 79.0s (2.6x) | 74.2s (2.7x)      | 79.0s (2.6x) | 73.6s (2.8x) | 108.2s (1.9x) |
-| large-v3-turbo | 82.0s (2.5x) | 79.6s (2.6x)      | 82.5s (2.5x) | 76.7s (2.7x) | 108.9s (1.9x) |
+| Model          | Corretto 26  | Corretto 26 + Vec | Valhalla     | Valhalla + Vec | GraalVM Native |
+|----------------|--------------|-------------------|--------------|----------------|----------------|
+| tiny.en        | 5.8s (35x)   | 5.1s (40x)        | 5.7s (36x)   | 5.4s (38x)     | 7.5s (27x)     |
+| base.en        | 10.6s (19x)  | 9.8s (21x)        | 10.4s (20x)  | 10.1s (20x)    | 14.0s (15x)    |
+| small.en       | 27.3s (7.4x) | 25.7s (7.9x)      | 28.1s (7.2x) | 25.9s (7.8x)   | 36.1s (5.6x)   |
+| medium.en      | 79.0s (2.6x) | 74.2s (2.7x)      | 79.0s (2.6x) | 73.6s (2.8x)   | 108.2s (1.9x)  |
+| large-v3-turbo | 82.0s (2.5x) | 79.6s (2.6x)      | 82.5s (2.5x) | 76.7s (2.7x)   | 108.9s (1.9x)  |
 
 Corretto 26: Amazon Corretto `26+35-FR`. Valhalla: OpenJDK Valhalla `8f9586645` (lworld branch).
 Vec: `--enable-preview --add-modules jdk.incubator.vector` (Vector API SIMD).
@@ -320,17 +342,29 @@ The encoder's scoped arena uses `ThreadLocal` storage, so each thread gets its o
 var model = WhisperModel.load(Path.of("ggml-base.en.bin"));
 
 // Transcribe multiple files concurrently
-try (var pool = Executors.newFixedThreadPool(4)) {
-    List<Future<List<Segment>>> futures = audioFiles.stream()
+try(
+
+var pool = Executors.newFixedThreadPool(4)){
+
+List<Future<List<Segment>>> futures = audioFiles.stream()
         .map(audio -> pool.submit(() -> model.transcribe(audio).toList()))
         .toList();
-    for (var f : futures) {
-        f.get().forEach(seg -> System.out.println(seg.text()));
-    }
-}
+    for(
+
+var f :futures){
+        f.
+
+get().
+
+forEach(seg ->System.out.
+
+println(seg.text()));
+        }
+        }
 ```
 
 Each concurrent `transcribe()` call:
+
 - Allocates its own KV cache (`HashMap` per decode call)
 - Allocates intermediate tensors via `Arena.ofAuto()` or thread-local scoped arena
 - Shares only the immutable model weights (read-only `Tensor` segments)

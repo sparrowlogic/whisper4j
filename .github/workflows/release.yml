@@ -30,3 +30,35 @@ jobs:
           CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
           CENTRAL_TOKEN: ${{ secrets.CENTRAL_TOKEN }}
           MAVEN_GPG_PASSPHRASE: ''
+
+  native-binary:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            artifact: whisper4j-macos-aarch64
+          - os: ubuntu-latest
+            artifact: whisper4j-linux-amd64
+    runs-on: ${{ matrix.os }}
+    name: native (${{ matrix.artifact }})
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '26'
+          distribution: 'graalvm'
+          cache: maven
+
+      - name: Set version from tag
+        run: ./mvnw -B versions:set -DnewVersion="${GITHUB_REF_NAME#v}" -DgenerateBackupPoms=false
+
+      - name: Build native binary
+        run: ./mvnw -B package -Pnative -DskipTests
+
+      - name: Upload release binary
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "$GITHUB_REF_NAME" target/whisper4j#${{ matrix.artifact }}

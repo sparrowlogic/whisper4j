@@ -46,6 +46,32 @@ jobs:
       - name: Tests (SIMD path — with Vector API)
         run: ./mvnw -B test -Pvector-api
 
+  native-image:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ macos-latest, ubuntu-latest ]
+    runs-on: ${{ matrix.os }}
+    name: native-image (${{ matrix.os }})
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '26'
+          distribution: 'graalvm'
+          cache: maven
+
+      - name: Build native binary
+        run: ./mvnw -B package -Pnative -DskipTests
+
+      - name: Upload native binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: whisper4j-${{ runner.os }}-${{ runner.arch }}
+          path: target/whisper4j
+
   publish:
     needs: build
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'

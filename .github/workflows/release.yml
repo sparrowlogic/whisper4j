@@ -48,7 +48,7 @@ jobs:
 
       - uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '26'
+          java-version: 'latest-ea'
           distribution: 'graalvm'
           cache: maven
 

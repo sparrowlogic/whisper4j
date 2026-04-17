@@ -1,0 +1,36 @@
+{
+  "reflection": [
+    {
+      "type": "com.sparrowlogic.whisper4j.tensor.VectorSimdOps",
+      "methods": [{"name": "<init>", "parameterTypes": []}]
+    }
+  ],
+  "foreign": {
+    "downcalls": [
+      {
+        "returnType": "void",
+        "parameterTypes": ["jint","jint","jint","jint","jint","jint","jfloat","void*","jint","void*","jint","jfloat","void*","jint"]
+      },
+      {
+        "returnType": "void",
+        "parameterTypes": ["void*","void*","void*"]
+      },
+      {
+        "returnType": "void",
+        "parameterTypes": ["void*","jlong","void*","jlong"]
+      },
+      {
+        "returnType": "void",
+        "parameterTypes": ["void*","jlong","void*","void*","jlong","jlong"]
+      },
+      {
+        "returnType": "void",
+        "parameterTypes": ["void*","void*","jlong","void*","jlong","jlong"]
+      },
+      {
+        "returnType": "void",
+        "parameterTypes": ["void*","jlong","void*","jlong","void*","jlong","jlong"]
+      }
+    ]
+  }
+}

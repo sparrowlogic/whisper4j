@@ -66,6 +66,20 @@ public final class Tensor {
         return new Tensor(allocSegment(bytes), shape);
     }
 
+    /** Allocate off-heap bypassing scoped arena — for data that must outlive the current scope. */
+    public static Tensor allocatePersistent(final int... shape) {
+        long bytes = (long) elementCount(shape) * Float.BYTES;
+        return new Tensor(Arena.ofAuto().allocate(bytes, Float.BYTES), shape);
+    }
+
+    /** Copy this tensor's data to an Arena.ofAuto() allocation so it survives scope close. */
+    public Tensor copyToAutoArena() {
+        long bytes = (long) this.size * Float.BYTES;
+        MemorySegment dst = Arena.ofAuto().allocate(bytes, Float.BYTES);
+        MemorySegment.copy(this.segment, 0, dst, 0, bytes);
+        return new Tensor(dst, this.shape.clone());
+    }
+
     /**
      * Set a scoped arena for the current thread. All allocateNative/ofNative/zeros calls
      * will use this arena instead of Arena.ofAuto(). Call {@link #clearScopedArena()} when done.

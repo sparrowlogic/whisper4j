@@ -122,12 +122,14 @@ final class SimdOps {
             this.delegate.matmulVecAccumulate(xSeg, xOff, xk, bSeg, bRowOff, outSeg, cOff, n);
             return;
         }
+        float[] bRow = new float[n];
+        float[] out = new float[n];
+        MemorySegment.copy(bSeg, FLOAT_LE, bRowOff, bRow, 0, n);
+        MemorySegment.copy(outSeg, FLOAT_LE, cOff, out, 0, n);
         for (int j = 0; j < n; j++) {
-            long outIdx = cOff + (long) j * Float.BYTES;
-            outSeg.set(FLOAT_LE, outIdx,
-                    outSeg.get(FLOAT_LE, outIdx)
-                            + xk * bSeg.get(FLOAT_LE, bRowOff + (long) j * Float.BYTES));
+            out[j] += xk * bRow[j];
         }
+        MemorySegment.copy(out, 0, outSeg, FLOAT_LE, cOff, n);
     }
 
     // ---- Fused single-token attention per head ----
@@ -152,10 +154,13 @@ final class SimdOps {
 
     static float scalarDot(final MemorySegment a, final long aByteOff,
                            final MemorySegment b, final long bByteOff, final int len) {
+        float[] aa = new float[len];
+        float[] bb = new float[len];
+        MemorySegment.copy(a, FLOAT_LE, aByteOff, aa, 0, len);
+        MemorySegment.copy(b, FLOAT_LE, bByteOff, bb, 0, len);
         float sum = 0;
         for (int i = 0; i < len; i++) {
-            sum += a.getAtIndex(FLOAT_LE, aByteOff / Float.BYTES + i)
-                    * b.getAtIndex(FLOAT_LE, bByteOff / Float.BYTES + i);
+            sum += aa[i] * bb[i];
         }
         return sum;
     }
@@ -163,11 +168,14 @@ final class SimdOps {
     private static void scalarAdd(final MemorySegment a, final long aOff,
                                   final MemorySegment b, final long bOff,
                                   final MemorySegment out, final long oOff, final int len) {
+        float[] aa = new float[len];
+        float[] bb = new float[len];
+        MemorySegment.copy(a, FLOAT_LE, aOff, aa, 0, len);
+        MemorySegment.copy(b, FLOAT_LE, bOff, bb, 0, len);
         for (int i = 0; i < len; i++) {
-            long byteI = (long) i * Float.BYTES;
-            out.set(FLOAT_LE, oOff + byteI,
-                    a.get(FLOAT_LE, aOff + byteI) + b.get(FLOAT_LE, bOff + byteI));
+            aa[i] += bb[i];
         }
+        MemorySegment.copy(aa, 0, out, FLOAT_LE, oOff, len);
     }
 
     @SuppressWarnings({"checkstyle:ParameterNumber", "checkstyle:CyclomaticComplexity"})
@@ -177,14 +185,18 @@ final class SimdOps {
                                          final MemorySegment mSeg, final long outOff,
                                          final int kvLen, final int headDim, final float scale,
                                          final float[] scores) {
+        float[] q = new float[headDim];
+        float[] kRow = new float[headDim];
+        MemorySegment.copy(qSeg, FLOAT_LE, qOff, q, 0, headDim);
+
         // QK^T
         float maxScore = Float.NEGATIVE_INFINITY;
+        long hdBytes = (long) headDim * Float.BYTES;
         for (int j = 0; j < kvLen; j++) {
-            long kOff = kvBase + (long) j * headDim * Float.BYTES;
+            MemorySegment.copy(kSeg, FLOAT_LE, kvBase + (long) j * hdBytes, kRow, 0, headDim);
             float dot = 0;
             for (int d = 0; d < headDim; d++) {
-                dot += qSeg.get(FLOAT_LE, qOff + (long) d * Float.BYTES)
-                        * kSeg.get(FLOAT_LE, kOff + (long) d * Float.BYTES);
+                dot += q[d] * kRow[d];
             }
             float s = dot * scale;
             scores[j] = s;
@@ -201,19 +213,16 @@ final class SimdOps {
         for (int j = 0; j < kvLen; j++) { scores[j] *= invSum; }
 
         // AV accumulate
-        for (int d = 0; d < headDim; d++) {
-            mSeg.set(FLOAT_LE, outOff + (long) d * Float.BYTES, 0f);
-        }
+        float[] outArr = new float[headDim];
+        float[] vRow = new float[headDim];
         for (int j = 0; j < kvLen; j++) {
             float sj = scores[j];
-            long vOff = kvBase + (long) j * headDim * Float.BYTES;
+            MemorySegment.copy(vSeg, FLOAT_LE, kvBase + (long) j * hdBytes, vRow, 0, headDim);
             for (int d = 0; d < headDim; d++) {
-                long idx = outOff + (long) d * Float.BYTES;
-                mSeg.set(FLOAT_LE, idx,
-                        mSeg.get(FLOAT_LE, idx)
-                                + sj * vSeg.get(FLOAT_LE, vOff + (long) d * Float.BYTES));
+                outArr[d] += sj * vRow[d];
             }
         }
+        MemorySegment.copy(outArr, 0, mSeg, FLOAT_LE, outOff, headDim);
     }
 
     private SimdOps() {
